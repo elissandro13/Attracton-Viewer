@@ -1,0 +1,31 @@
+<% include partials/header %>
+
+<div class="container">
+    <header class="jumbotron">
+        <div class="container">
+            <h1>Welcome to AttractionsViewer</h1>
+            <p>View some of the best spots to visit in Brazil!</p>
+            <p>
+                <a href="/attractions/new" class="btn btn-primary">Add new places</a>
+                <a href="/" class="btn btn-danger">Back to home Page</a>
+            </p>
+        </div>
+    </header>
+
+
+    <div class="row" style="display: flex; flex-wrap: wrap">
+        <% attractions.forEach(function(place){%>
+            <div class="col-md-3 col-sm-6">
+                <div class="thumbnail">
+                    <img src="<%= place.img %>">
+                    <div class="caption">
+                            <h4> <%= place.name %></h4>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+    <% include partials/footer %>
+</div>
+
+
