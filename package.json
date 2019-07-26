@@ -1,5 +1,5 @@
 {
-  "name": "AttractionViewer",
+  "name": "attractionviewer",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -13,6 +13,7 @@
     "ejs": "^2.6.2",
     "ejs-lint": "^0.3.0",
     "eslint": "^6.1.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^5.6.7"
   }
 }
