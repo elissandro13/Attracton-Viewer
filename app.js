@@ -4,14 +4,15 @@ const ejsLint = require('ejs-lint');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-app.use(bodyParser.urlencoded({extended: true}));;
+app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 mongoose.connect("mongodb://localhost/attraViewer",{ useNewUrlParser: true });
 
 let attractionSchema = new mongoose.Schema({
     name: String,
-    img: String
+    img: String,
+    text: String
 });
 
 let attraction = mongoose.model("attraction", attractionSchema);
@@ -33,16 +34,17 @@ app.get("/attractions", function(req,res) {
             console.log(err);
         }
         else {
-            res.render("attractions", {attractions:allAttractions});
+            res.render("index", {attractions:allAttractions});
         }
     });
 });
 
 app.post("/attractions", function(req, res){
     let name = req.body.name;
-    console.log(req.body.name);
+    //console.log(req.body.name);
     let img = req.body.img;
-    let newAttraction = {name : name,img : img};
+    let text = req.body.description;
+    let newAttraction = {name : name,img : img, text : text};
     console.log(newAttraction);
     attraction.create(newAttraction, function(err, newCreated)
     {
@@ -50,7 +52,7 @@ app.post("/attractions", function(req, res){
             console.log(err);
         }
         else {
-            console.log(newCreated);
+            //console.log(newCreated);
             res.redirect("/attractions");
         }
     });
@@ -58,6 +60,18 @@ app.post("/attractions", function(req, res){
 
 app.get("/attractions/new", function(req, res){
     res.render("new.ejs");
+});
+
+app.get("/attractions/:id", function(req,res){
+
+    attraction.findById(req.params.id, function(err, foundAttraction){
+        if(err){
+            console.log(err);
+        }
+        else {
+            res.render("show", {place: foundAttraction});
+        }
+    });
 });
 
 app.listen(3000, function(){
