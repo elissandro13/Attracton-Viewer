@@ -3,46 +3,34 @@ const app = express();
 const ejsLint = require('ejs-lint');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const attraction = require("./models/attraction");
+const Attraction = require("./models/attraction");
 const Comment   = require("./models/comment");
 const Seed = require("./models/seed");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public/"));
 
 mongoose.connect("mongodb://localhost/attraViewer",{ useNewUrlParser: true });
 
 Seed();
-// let attractionSchema = new mongoose.Schema({
-//     name: String,
-//     img: String,
-//     text: String
-// });
 
-// let attraction = mongoose.model("attraction", attractionSchema);
-
-
-// let attTest = [
-//     {name: "Usina Itaipu", img: "https://abrilexame.files.wordpress.com/2016/09/size_960_16_9_itaipu.jpg?quality=70&strip=info&w=920"},     
-// ];
-
-
-// attraction.create(attTest);
 app.get("/", function(req, res){
     res.render("landing");
 });
 
+// index  route
 app.get("/attractions", function(req,res) {
-    attraction.find({}, function(err, allAttractions){
+    Attraction.find({}, function(err, allAttractions){
         if(err){
             console.log(err);
         }
         else {
-            res.render("index", {attractions:allAttractions});
+            res.render("attractions/index", {attractions:allAttractions});
         }
     });
 });
-
+// create route 
 app.post("/attractions", function(req, res){
     let name = req.body.name;
     //console.log(req.body.name);
@@ -50,7 +38,7 @@ app.post("/attractions", function(req, res){
     let text = req.body.description;
     let newAttraction = {name : name,img : img, text : text};
     console.log(newAttraction);
-    attraction.create(newAttraction, function(err, newCreated)
+    Attraction.create(newAttraction, function(err, newCreated)
     {
         if(err) {
             console.log(err);
@@ -62,20 +50,56 @@ app.post("/attractions", function(req, res){
     });
 });
 
+// new route
+ 
 app.get("/attractions/new", function(req, res){
-    res.render("new.ejs");
+    res.render("attractions/new.ejs");
 });
 
 //Show route
 
 app.get("/attractions/:id", function(req,res){
 
-    attraction.findById(req.params.id).populate("comments").exec(function(err, foundAttraction){
+    Attraction.findById(req.params.id).populate("comments").exec(function(err, foundAttraction){
         if(err){
             console.log(err);
         }
         else {
-            res.render("show", {place: foundAttraction});
+            res.render("attractions/show", {place: foundAttraction});
+        }
+    });
+});
+
+// Comments Route
+
+app.get("/attractions/:id/comments/new", function(req,res){
+    Attraction.findById(req.params.id, function(err, attractions){
+        if(err){
+            console.log(err);
+        }
+        else {
+            res.render("comments/new.ejs", {place: attractions});
+        }
+    });   
+});
+
+app.post("/attractions/:id/comments" ,function(req,res){
+    Attraction.findById(req.params.id, function(err, attraction){
+        if(err){
+            console.log(err);
+            res.redirect("/attractions");
+        }
+        else {
+            Comment.create(req.body.comment, function(err, comment){
+                if(err){
+                    console.log(err);
+                }
+                else {
+                    attraction.comments.push(comment);
+                    attraction.save();
+                    res.redirect('/attractions/' + attraction._id);
+                }
+            });
         }
     });
 });

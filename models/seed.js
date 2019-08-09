@@ -22,9 +22,9 @@ var seeds = [
 
 async function seedDB(){
     try {
-        await Attraction.remove({});
+        await Attraction.deleteMany({});
         console.log('attractions removed');
-        await Comment.remove({});
+        await Comment.deleteMany({});
         console.log('Comments removed');
 
         for(const seed of seeds) {
