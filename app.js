@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const Attraction = require("./models/attraction");
 const Comment   = require("./models/comment");
 const Seed = require("./models/seed");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -14,6 +17,23 @@ app.use(express.static(__dirname + "/public/"));
 mongoose.connect("mongodb://localhost/attraViewer",{ useNewUrlParser: true });
 
 Seed();
+
+//Passport 
+app.use(require("express-session")({
+    secret: "Once again you are here",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(User.serializeUser());
+
+app.use(function(req,res,next){
+    res.locals.currentUser = req.user;
+    next();
+});
 
 app.get("/", function(req, res){
     res.render("landing");
@@ -72,7 +92,7 @@ app.get("/attractions/:id", function(req,res){
 
 // Comments Route
 
-app.get("/attractions/:id/comments/new", function(req,res){
+app.get("/attractions/:id/comments/new",isLoggedIn,function(req,res){
     Attraction.findById(req.params.id, function(err, attractions){
         if(err){
             console.log(err);
@@ -83,7 +103,7 @@ app.get("/attractions/:id/comments/new", function(req,res){
     });   
 });
 
-app.post("/attractions/:id/comments" ,function(req,res){
+app.post("/attractions/:id/comments",isLoggedIn,function(req,res){
     Attraction.findById(req.params.id, function(err, attraction){
         if(err){
             console.log(err);
@@ -103,7 +123,45 @@ app.post("/attractions/:id/comments" ,function(req,res){
         }
     });
 });
+//Authentication
+app.get("/register", function(req,res){
+    res.render("register");
+});
 
+app.post("/register", function(req,res){
+    let newUser = new User({username : req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+            res.redirect("/attractions");
+        });
+    });
+});
+
+app.get("/login", function(req,res){
+    res.render("login");
+});
+
+app.post("/login", passport.authenticate("local",{
+    successRedirect: "/attractions",
+    failureRedirect: "/login"
+    }),  function(req,res){
+});
+
+app.get("/logout", function(req,res){
+    req.logout();
+    res.redirect("/attractions");
+});
+
+function isLoggedIn(req,res,next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
 app.listen(3000, function(){
     console.log("on air");
 });
