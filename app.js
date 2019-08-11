@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Attraction = require("./models/attraction");
 const Comment   = require("./models/comment");
 const Seed = require("./models/seed");
+const methodOverride = require("method-override");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user");
@@ -20,7 +21,7 @@ app.use(express.static(__dirname + "/public/"));
 
 
 mongoose.connect("mongodb://localhost/attraViewer",{ useNewUrlParser: true });
-
+mongoose.set('useFindAndModify', false);
 
 app.use(require("express-session")({
     secret: "Once again you are here",
@@ -30,6 +31,7 @@ app.use(require("express-session")({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(methodOverride("_method"));
 passport.use(new LocalStrategy(User.authenticate()));
 passport.deserializeUser(User.deserializeUser());
 passport.serializeUser(User.serializeUser());

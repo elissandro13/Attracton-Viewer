@@ -7,9 +7,9 @@ let attractionSchema = new mongoose.Schema({
     author : {
         id : {
             type: mongoose.Schema.Types.ObjectId,
-            ref: URLSearchParams
+            ref: "User"
         }, username: String,
-    },
+    }, 
     comments: [
         {
             type : mongoose.Schema.Types.ObjectId,
