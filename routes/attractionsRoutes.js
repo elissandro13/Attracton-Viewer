@@ -61,7 +61,7 @@ router.get("/:id/edit",checkAttractionOwnership,function(req,res){
     });
 });
 
-router.put("/:id", function(req,res){
+router.put("/:id",checkAttractionOwnership,function(req,res){
     Attraction.findOneAndUpdate(req.params.id, req.body.attraction,function(err, updatedAttraction){
         if(err){
             res.redirect("/attractions");
@@ -73,7 +73,7 @@ router.put("/:id", function(req,res){
 });
 
 //Delete
-router.delete("/:id", function(req,res){
+router.delete("/:id",checkAttractionOwnership,function(req,res){
     Attraction.findByIdAndDelete(req.params.id, function(err){
         if(err){
             console.log(err);
