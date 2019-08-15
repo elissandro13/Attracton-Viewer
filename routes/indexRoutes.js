@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const passport = require("passport");
+const middleware = require("../middleware/index");
 
 //Authentication
 router.get("/register", function(req,res){
@@ -36,11 +37,11 @@ router.get("/logout", function(req,res){
     res.redirect("/attractions");
 });
 
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect("/login");
-}
+// function isLoggedIn(req,res,next){
+//     if(req.isAuthenticated()){
+//         return next();
+//     }
+//     res.redirect("/login");
+// }
 
 module.exports = router;

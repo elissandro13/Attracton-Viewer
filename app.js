@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const ejsLint = require('ejs-lint');
+//const ejsLint = require('ejs-lint');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Attraction = require("./models/attraction");
@@ -10,6 +10,7 @@ const methodOverride = require("method-override");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user");
+const flash = require("connect-flash");
 
 const   commentsRoutes      =   require("./routes/commentsRoutes"),
         attractionsRoutes   =   require("./routes/attractionsRoutes"),
@@ -32,9 +33,11 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(methodOverride("_method"));
+aoo.use(flash());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.deserializeUser(User.deserializeUser());
 passport.serializeUser(User.serializeUser());
+
 
 app.use(function(req,res,next){
     res.locals.currentUser = req.user;

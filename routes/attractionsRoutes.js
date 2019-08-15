@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Attraction = require("../models/attraction");
+const middleware = require("../middleware/index");
 // index  route
 router.get("/", function(req,res) {
     Attraction.find({}, function(err, allAttractions){
@@ -13,7 +14,7 @@ router.get("/", function(req,res) {
     });
 });
 // create route 
-router.post("/",isLoggedIn,function(req, res){
+router.post("/",middleware.isLoggedIn,function(req, res){
     let name = req.body.name;
     //console.log(req.body.name);
     let img = req.body.img;
@@ -55,13 +56,13 @@ router.get("/:id", function(req,res){
     });
 });
 //Edit
-router.get("/:id/edit",checkAttractionOwnership,function(req,res){
+router.get("/:id/edit",middleware.checkAttractionOwnership,function(req,res){
     Attraction.findById(req.params.id, function(err,foundAttraction){
         res.render("attractions/edit" , {place: foundAttraction});       
     });
 });
 
-router.put("/:id",checkAttractionOwnership,function(req,res){
+router.put("/:id",middleware.checkAttractionOwnership,function(req,res){
     Attraction.findOneAndUpdate(req.params.id, req.body.attraction,function(err, updatedAttraction){
         if(err){
             res.redirect("/attractions");
@@ -73,7 +74,7 @@ router.put("/:id",checkAttractionOwnership,function(req,res){
 });
 
 //Delete
-router.delete("/:id",checkAttractionOwnership,function(req,res){
+router.delete("/:id",middleware.checkAttractionOwnership,function(req,res){
     Attraction.findByIdAndDelete(req.params.id, function(err){
         if(err){
             console.log(err);
@@ -84,30 +85,30 @@ router.delete("/:id",checkAttractionOwnership,function(req,res){
         }
     });
 });
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect("/login");
-}
+// function isLoggedIn(req,res,next){
+//     if(req.isAuthenticated()){
+//         return next();
+//     }
+//     res.redirect("/login");
+// }
 
-function checkAttractionOwnership(req, res, next){
-    if(req.isAuthenticated()){
-        Attraction.findById(req.params.id, function(err, foundAttraction){
-            if(err){
-                res.redirect("back");
-            } else {
-                if(foundAttraction.author.id.equals(req.user._id)){
-                    next();
-                } else {
-                    res.redirect("back");
-                }
-            }
-        });
-    }
-    else {
-        res.redirect("back");
-    }
-}
+// function checkAttractionOwnership(req, res, next){
+//     if(req.isAuthenticated()){
+//         Attraction.findById(req.params.id, function(err, foundAttraction){
+//             if(err){
+//                 res.redirect("back");
+//             } else {
+//                 if(foundAttraction.author.id.equals(req.user._id)){
+//                     next();
+//                 } else {
+//                     res.redirect("back");
+//                 }
+//             }
+//         });
+//     }
+//     else {
+//         res.redirect("back");
+//     }
+// }
 
 module.exports = router;
