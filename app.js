@@ -33,7 +33,7 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(methodOverride("_method"));
-aoo.use(flash());
+app.use(flash());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.deserializeUser(User.deserializeUser());
 passport.serializeUser(User.serializeUser());
